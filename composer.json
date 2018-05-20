@@ -1,0 +1,15 @@
+{
+    "name": "sui/swoole",
+    "authors": [
+        {
+            "name": "sui",
+            "email": "suitingwei@nanzhuxinyu.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "server\\": "src/"
+        }
+    },
+    "require": {}
+}
