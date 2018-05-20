@@ -1,10 +1,10 @@
 <?php
 
-namespace server;
+namespace server\Consumers;
 
-require_once __DIR__ . '../vendor/autoload.php';
+use server\Kernel\Application;
 
-class ConsumerBase implements ConsumerInterface
+abstract  class ConsumerBase
 {
     protected $events = [
         'start'   => 'onStart',
@@ -16,7 +16,7 @@ class ConsumerBase implements ConsumerInterface
     ];
 
     /**
-     * @var Swoole\Server
+     * @var
      */
     protected $server;
 
@@ -38,7 +38,7 @@ class ConsumerBase implements ConsumerInterface
      */
     private function initServer()
     {
-        $this->server = new swoole_server("127.0.0.1", $this->listenPort());
+        $this->server = new \Swoole\Server("127.0.0.1", $this->listenPort());
     }
 
     private function initServerConfigure()
@@ -66,10 +66,10 @@ class ConsumerBase implements ConsumerInterface
     private function initServerEvents()
     {
         foreach ($this->events as $swooleEventName => $consumerCallback) {
-            if (method_exists($this, $consumerCallback)) {
-                $this->server->on($swooleEventName, $consumerCallback);
+            if (!method_exists($this, $consumerCallback)) {
+                throw new \Exception(sprintf("Swoole 事件:%s,没有设置回调:%s", $swooleEventName, $consumerCallback));
             }
-            throw new \Exception(sprintf("Swoole 事件:%s,没有设置回调:%s", $swooleEventName, $consumerCallback));
+            $this->server->on($swooleEventName, [$this,$consumerCallback]);
         }
     }
 
@@ -79,6 +79,8 @@ class ConsumerBase implements ConsumerInterface
     public function consume()
     {
         echo sprintf("开始执行消费操作\n");
+        //启动 Server
+        $this->server->start();
     }
 
     /**
@@ -87,7 +89,7 @@ class ConsumerBase implements ConsumerInterface
      */
     public static function run()
     {
-        (new self)->consume();
+        (new static)->consume();
     }
 
     /**
@@ -136,8 +138,7 @@ class ConsumerBase implements ConsumerInterface
      */
     public function getLogFilePath(): string
     {
-        return dir(__FILE__) . '/swoole.log';
+        return Application::getInstance()->getLogPath() . static::class .'.log';
     }
 }
 
-Consumer::run();
