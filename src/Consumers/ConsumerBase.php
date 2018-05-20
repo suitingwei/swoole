@@ -4,7 +4,7 @@ namespace server\Consumers;
 
 use server\Kernel\Application;
 
-abstract  class ConsumerBase
+abstract class ConsumerBase
 {
     protected $events = [
         'start'   => 'onStart',
@@ -69,7 +69,7 @@ abstract  class ConsumerBase
             if (!method_exists($this, $consumerCallback)) {
                 throw new \Exception(sprintf("Swoole 事件:%s,没有设置回调:%s", $swooleEventName, $consumerCallback));
             }
-            $this->server->on($swooleEventName, [$this,$consumerCallback]);
+            $this->server->on($swooleEventName, [$this, $consumerCallback]);
         }
     }
 
@@ -133,12 +133,17 @@ abstract  class ConsumerBase
         return true;
     }
 
+    public function getClassShortName()
+    {
+        return substr(static::class, strrpos(static::class, '\\')+1);
+    }
+
     /**
      * @return string
      */
     public function getLogFilePath(): string
     {
-        return Application::getInstance()->getLogPath() . static::class .'.log';
+        return Application::getInstance()->getLogPath() . '/' . $this->getClassShortName() . '.log';
     }
 }
 

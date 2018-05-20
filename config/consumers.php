@@ -5,6 +5,6 @@
  * E.G. php index.php --consumer = test,则会启用对应的配置
  */
 return [
-    'test' => \server\TestConsumer::class
+    'test' => \server\Consumers\TestConsumer::class
 ];
 
