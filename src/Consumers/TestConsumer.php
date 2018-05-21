@@ -10,7 +10,7 @@ class TestConsumer extends ConsumerBase
     public function onStart($serv)
     {
         echo sprintf("服务器Master进程ID是:%s,Manager进程ID是:%s\n", $serv->master_pid, $serv->manager_pid);
-        savePidInfo($serv);
+        $this->savePidInfo($serv);
     }
 
     //监听连接进入事件
@@ -23,7 +23,7 @@ class TestConsumer extends ConsumerBase
     public function onReceive($serv, $fd, $from_id, $data)
     {
         //这一个时间监听是在 refactor 进程中处理的，下面打印一下
-        printPid();
+        $this->printPid();
 
         //向 worker 投放请求数据，这里其实就是类似nginx-->fpm进行转发的操作.
         $task_id = $serv->task($data);
@@ -38,7 +38,7 @@ class TestConsumer extends ConsumerBase
     public function onTask($serv, $task_id, $from_id, $data)
     {
         //这一个事件监听是在 worker 进程中处理的，下面打印一下
-        printPid();
+        $this->printPid();
         echo "开始执行异步任务:{$task_id}\n";
         $i = 0;
         while ($i++ < 10) {

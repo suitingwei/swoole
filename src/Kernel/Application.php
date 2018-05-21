@@ -39,7 +39,27 @@ class Application
      */
     public function getLogPath()
     {
-        return $this->getBasePath() . '/logs';
+        return $this->getRuntimePath() . '/logs';
+    }
+
+    /**
+     * 获取 Runtime 文件目录
+     * 运行中产生的编译文件、日志文件、pid 进程文件都保存在运行时目录中
+     * @return string
+     */
+    public function getRuntimePath()
+    {
+        return $this->getBasePath() . '/runtime';
+    }
+
+    /**
+     * 获取 Pid 文件目录
+     * 里面保存了所有正在运行者的进程的主ID
+     * @return string
+     */
+    public function getPidFilePath()
+    {
+        return $this->getRuntimePath() . '/pid.info';
     }
 
     public function __construct($basePath = '')

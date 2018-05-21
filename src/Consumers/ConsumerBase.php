@@ -135,7 +135,7 @@ abstract class ConsumerBase
 
     public function getClassShortName()
     {
-        return substr(static::class, strrpos(static::class, '\\')+1);
+        return substr(static::class, strrpos(static::class, '\\') + 1);
     }
 
     /**
@@ -144,6 +144,53 @@ abstract class ConsumerBase
     public function getLogFilePath(): string
     {
         return Application::getInstance()->getLogPath() . '/' . $this->getClassShortName() . '.log';
+    }
+
+    /**
+     * 获取 Pid 文件路径
+     */
+    public function getPidFilePath()
+    {
+        return Application::getInstance()->getPidFilePath();
+    }
+
+    /**
+     * 保存该消费者的主进程 id
+     * PID 文件格式如下，我们使用每一个消费者的 class 作为 key 名，保存他们对应的两个 id
+     * {
+     * "server\\Consumers\\TestConsumer": {
+     * "masterPid": 32562,
+     * "managerPid": 32563
+     * },
+     * "server\\Consumers\\TestConsumer2": {
+     * "masterPid": 32562,
+     * "managerPid": 32563
+     * },
+     * "server\\Consumers\\TestConsumer3": {
+     * "masterPid": 32562,
+     * "managerPid": 32563
+     * }
+     * }
+     * @param $server
+     * @return bool
+     */
+    public function savePidInfo($server)
+    {
+        $pidData = json_decode(file_get_contents($this->getPidFilePath()), true);
+
+        $pidData[static::class] = [
+            'masterPid'  => $server->master_pid,
+            'managerPid' => $server->manager_pid,
+        ];
+
+        file_put_contents($this->getPidFilePath(), json_encode($pidData));
+
+        return true;
+    }
+
+    public function printPid()
+    {
+
     }
 }
 
